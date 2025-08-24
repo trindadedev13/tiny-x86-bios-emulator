@@ -51,7 +51,7 @@ THREAD txbe_emu_thread(void* _udata) {
       uint16_t physical_ip = (cpu.cs << 4) + cpu.ip;
       txbe_emu_emulate_next(physical_ip);
     } else {
-      // sleep...
+      txbe_thread_sleep(1);
     }
   }
   txbe_emu_backend_end();
