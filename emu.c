@@ -215,6 +215,8 @@ int txbe_emu_emulate_next(uint16_t physical_ip) {
       int8_t rel8 = (int8_t)ram[physical_ip + 1];
       if (cpu.flags & FLAG_ZF)
         cpu.ip = (uint16_t)((int16_t)cpu.ip + 2 + rel8);
+      else
+        cpu.ip += 2;
       break;
     }
     /** =============== JMP ================== */
