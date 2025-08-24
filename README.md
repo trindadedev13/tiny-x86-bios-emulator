@@ -1,5 +1,39 @@
 # Tiny x86 Bios Emulator
-  txbe is a (Bios) x86 16-bit Emulator
+  txbe is a Tiny (Bios) x86 16-bit Emulator
+
+# Instructions Implemented
+  NOP
+  CMP r/m8, r8      (38 /r)
+  CMP r/m16, r16    (39 /r)
+  CMP r8, r/m8      (3A /r)
+  CMP r16, r/m16    (3B /r)
+  CMP AL, imm8      (3C ib)
+  CMP AX, imm16     (3D iw)
+  JMP rel8          (EB cb)
+  JE rel8           (74 cb)
+  INT imm8          (CD ib)
+  INC AL            (40)
+  INC CL            (41)
+  INC DL            (42)
+  INC BL            (43)
+  INC AH            (44)
+  INC CH            (45)
+  INC DH            (46)
+  INC BH            (47)
+  INC AX            (48)
+  INC CX            (49)
+  INC DX            (4A)
+  INC BX            (4B)
+  INC SP            (4C)
+  INC BP            (4D)
+  INC SI            (4E)
+  INC DI            (4F)
+  MOV r8, imm8      (B0–B7)
+  MOV r16, imm16    (B8–BF)
+  MOV r/m8, r8      (88 /r)
+  MOV r/m16, r16    (89 /r)
+  MOV r8, r/m8      (8A /r)
+  MOV r16, r/m16    (8B /r)
 
 # Infrastructure
   The tbxe project is separated into 2 main parts, Core and Backend.  
