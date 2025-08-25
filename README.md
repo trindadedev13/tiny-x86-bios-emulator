@@ -52,6 +52,9 @@
   You can implement your own backend with [backend-template](https://github.com/trindadedev13/txbe/tree/main/backend_template.c)  
   And add it in CMakeLists.txt  
 
+# Available Backends
+  stdout
+
 # Building txbe
   To build txbe you have some ways  
   But before compiling, we should take a look at dependencies
