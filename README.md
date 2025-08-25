@@ -91,7 +91,7 @@ There's two way to compile it:
   cmake --build build
   ```  
   Above you can see i used `-DBACKEND=stdout`, it's for indicates to CMake what backend we want use.  
-  You can see all backends [here](https://github.com/trindadedev13/txbe/README.md#available-backends).  
+  You can see all backends [here](https://github.com/trindadedev13/tiny-x86-bios-emulator?tab=readme-ov-file#available-backends).  
 
   To Run:
   Well, to run the compiled executable, we just need to execute de elf (or exe in windows) passing an Bootloader .img/.iso  
