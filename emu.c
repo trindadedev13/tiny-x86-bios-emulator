@@ -96,7 +96,8 @@ int txbe_emu_emulate_next(uint16_t physical_ip) {
   uint8_t* reg8_high[] = { ((uint8_t*)&cpu.ax)+1, ((uint8_t*)&cpu.cx)+1, ((uint8_t*)&cpu.dx)+1, ((uint8_t*)&cpu.bx)+1 };
 
   switch (opcode) {
-    case 0x00: // NOP placeholder
+    case 0x00:
+    case 0x90: // NOP placeholder
       cpu.ip++;
       break;
 
