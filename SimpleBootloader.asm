@@ -2,15 +2,20 @@
 [ORG  0x7C00]
 
 Main:
-        mov       ah, 0x0E
-        mov       si, msg
+        mov       ah, 0x0E ; func teletype output
+        mov       si, msg  ; si = msg
+        mov       al, [si] ; al = *si
+
 
         PrintLoop:
-                  mov        al, [si]
-                  cmp        al, 0x00
+                  int        0x10     ; draw
+
+                  inc        si       ; si++ ; isso ta vitando 0x46 0x8a no binario
+                  mov        al, [si] ; al = *si
+
+                  cmp        al, 0x00 ; al == 0x00(null)
                   je         PrintLoop.Done
-                  int        0x10
-                  inc        si
+
                   jmp        PrintLoop
 
         PrintLoop.Done:

@@ -231,73 +231,128 @@ int txbe_emu_emulate_next(uint16_t physical_ip) {
     /** =============== INT ================== */
 
     /** =============== INC ================== */
-    // 8 bit
-    case 0x40: { // INC AL
-        uint8_t old = txbe_x86_16_getal();
-        cpu.ax = (cpu.ax & 0xFF00) | (old + 1);
-        txbe_cpu_set_flags_inc8(old, old + 1);
-        cpu.ip++;
-        break;
+
+    // 8-bit
+    case 0xFE: { // INC 8-bit
+      uint8_t reg8 = ram[physical_ip + 1];
+      switch (reg8) {
+        case 0xC0: { // al
+          uint8_t old = txbe_x86_16_getal();
+          cpu.ax = (cpu.ax & 0xFF00) | (old + 1);
+          txbe_cpu_set_flags_inc8(old, old + 1);
+          break;
+        }
+        case 0xC1: { // cl
+          uint8_t old = txbe_x86_16_getcl();
+          cpu.cx = (cpu.cx & 0xFF00) | (old + 1);
+          txbe_cpu_set_flags_inc8(old, old + 1);
+          break;
+        }
+        case 0xC2: { // dl
+          uint8_t old = txbe_x86_16_getdl();
+          cpu.dx = (cpu.dx & 0xFF00) | (old + 1);
+          txbe_cpu_set_flags_inc8(old, old + 1);
+          break;
+        }
+        case 0xC3: { // bl
+          uint8_t old = txbe_x86_16_getbl();
+          cpu.bx = (cpu.bx & 0xFF00) | (old + 1);
+          txbe_cpu_set_flags_inc8(old, old + 1);
+          break;
+        }
+        case 0xC4: { // ah
+          uint8_t old = txbe_x86_16_getah();
+          cpu.ax = (cpu.ax & 0x00FF) | ((old + 1) << 8);
+          txbe_cpu_set_flags_inc8(old, old + 1);
+          break;
+        }
+        case 0xC5: { // ch
+          uint8_t old = txbe_x86_16_getch();
+          cpu.cx = (cpu.cx & 0x00FF) | ((old + 1) << 8);
+          txbe_cpu_set_flags_inc8(old, old + 1);
+          break;
+        }
+        case 0xC6: { // dh
+          uint8_t old = txbe_x86_16_getdh();
+          cpu.dx = (cpu.dx & 0x00FF) | ((old + 1) << 8);
+          txbe_cpu_set_flags_inc8(old, old + 1);
+          break;
+        }
+        case 0xC7: { // bh
+          uint8_t old = txbe_x86_16_getbh();
+          cpu.bx = (cpu.bx & 0x00FF) | ((old + 1) << 8);
+          txbe_cpu_set_flags_inc8(old, old + 1);
+          break;
+        }
+      };
+      cpu.ip += 2;
+      break;
     }
-    case 0x44: { // INC AH
-        uint8_t old = txbe_x86_16_getah();
-        cpu.ax = (cpu.ax & 0x00FF) | ((old + 1) << 8);
-        txbe_cpu_set_flags_inc8(old, old + 1);
-        cpu.ip++;
-        break;
+
+    // 16-bit
+    case 0x40: { // INC AX
+      uint16_t old = cpu.ax;
+      cpu.ax++;
+      txbe_cpu_set_flags_inc16(old, cpu.ax);
+      cpu.ip++;
+      break;
     }
-    case 0x41: { // INC CL
-        uint8_t old = txbe_x86_16_getcl();
-        cpu.cx = (cpu.cx & 0xFF00) | (old + 1);
-        txbe_cpu_set_flags_inc8(old, old + 1);
-        cpu.ip++;
-        break;
+
+    case 0x41: { // INC CX
+      uint16_t old = cpu.cx;
+      cpu.cx++;
+      txbe_cpu_set_flags_inc16(old, cpu.cx);
+      cpu.ip++;
+      break;
     }
-    case 0x45: { // INC CH
-        uint8_t old = txbe_x86_16_getch();
-        cpu.cx = (cpu.cx & 0x00FF) | ((old + 1) << 8);
-        txbe_cpu_set_flags_inc8(old, old + 1);
-        cpu.ip++;
-        break;
+
+    case 0x42: { // INC DX
+      uint16_t old = cpu.dx;
+      cpu.dx++;
+      txbe_cpu_set_flags_inc16(old, cpu.dx);
+      cpu.ip++;
+      break;
     }
-    case 0x42: { // INC DL
-        uint8_t old = txbe_x86_16_getdl();
-        cpu.dx = (cpu.dx & 0xFF00) | (old + 1);
-        txbe_cpu_set_flags_inc8(old, old + 1);
-        cpu.ip++;
-        break;
+
+    case 0x43: { // INC BX
+      uint16_t old = cpu.bx;
+      cpu.bx++;
+      txbe_cpu_set_flags_inc16(old, cpu.bx);
+      cpu.ip++;
+      break;
     }
-    case 0x46: { // INC DH
-        uint8_t old = txbe_x86_16_getdh();
-        cpu.dx = (cpu.dx & 0x00FF) | ((old + 1) << 8);
-        txbe_cpu_set_flags_inc8(old, old + 1);
-        cpu.ip++;
-        break;
+
+    case 0x44: { // INC SP
+      uint16_t old = cpu.sp;
+      cpu.sp++;
+      txbe_cpu_set_flags_inc16(old, cpu.sp);
+      cpu.ip++;
+      break;
     }
-    case 0x43: { // INC BL
-        uint8_t old = txbe_x86_16_getbl();
-        cpu.bx = (cpu.bx & 0xFF00) | (old + 1);
-        txbe_cpu_set_flags_inc8(old, old + 1);
-        cpu.ip++;
-        break;
+
+    case 0x45: { // INC BP
+      uint16_t old = cpu.bp;
+      cpu.bp++;
+      txbe_cpu_set_flags_inc16(old, cpu.bp);
+      cpu.ip++;
+      break;
     }
-    case 0x47: { // INC BH
-        uint8_t old = txbe_x86_16_getbh();
-        cpu.bx = (cpu.bx & 0x00FF) | ((old + 1) << 8);
-        txbe_cpu_set_flags_inc8(old, old + 1);
-        cpu.ip++;
-        break;
+
+    case 0x46: { // INC SI
+      uint16_t old = cpu.si;
+      cpu.si++;
+      txbe_cpu_set_flags_inc16(old, cpu.si);
+      cpu.ip++;
+      break;
     }
-    
-    // INC 16-bit
-    case 0x48: cpu.ax++; txbe_cpu_set_flags_inc16(cpu.ax - 1, cpu.ax); break; // INC AX
-    case 0x49: cpu.cx++; txbe_cpu_set_flags_inc16(cpu.cx - 1, cpu.cx); break; // INC CX
-    case 0x4A: cpu.dx++; txbe_cpu_set_flags_inc16(cpu.dx - 1, cpu.dx); break; // INC DX
-    case 0x4B: cpu.bx++; txbe_cpu_set_flags_inc16(cpu.bx - 1, cpu.bx); break; // INC BX
-    case 0x4C: cpu.sp++; txbe_cpu_set_flags_inc16(cpu.sp - 1, cpu.sp); break; // INC SP
-    case 0x4D: cpu.bp++; txbe_cpu_set_flags_inc16(cpu.bp - 1, cpu.bp); break; // INC BP
-    case 0x4E: cpu.si++; txbe_cpu_set_flags_inc16(cpu.si - 1, cpu.si); break; // INC SI
-    case 0x4F: cpu.di++; txbe_cpu_set_flags_inc16(cpu.di - 1, cpu.di); break; // INC DI
+
+    case 0x47: { // INC DI
+      uint16_t old = cpu.di;
+      cpu.di++;
+      txbe_cpu_set_flags_inc16(old, cpu.di);
+      cpu.ip++;
+      break;
+    }
     /** =============== INC ================== */
 
     /** =============== MOV ================== */
