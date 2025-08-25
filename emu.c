@@ -101,6 +101,98 @@ int txbe_emu_emulate_next(uint16_t physical_ip) {
       cpu.ip++;
       break;
 
+    /** =============== MOV ================== */
+    // MOV immediate 8-bit: B0..B7
+    case 0xB0: case 0xB1: case 0xB2: case 0xB3:
+    case 0xB4: case 0xB5: case 0xB6: case 0xB7: {
+      uint8_t imm8 = ram[physical_ip + 1];
+      if (opcode <= 0xB3)
+        *reg8_low[opcode - 0xB0] = imm8;
+      else
+        *reg8_high[opcode - 0xB4] = imm8;
+      cpu.ip += 2;
+      break;
+    }
+
+    // MOV immediate 16-bit: B8..BF
+    case 0xB8: case 0xB9: case 0xBA: case 0xBB:
+    case 0xBC: case 0xBD: case 0xBE: case 0xBF: {
+      uint16_t imm16 = ram[physical_ip + 1] | (ram[physical_ip + 2] << 8);
+      *reg16[opcode - 0xB8] = imm16;
+      cpu.ip += 3;
+      break;
+    }
+
+    // MOV r/m8, r8
+    case 0x88: {
+      uint8_t modrm = ram[physical_ip + 1];
+      uint8_t reg = (modrm >> 3) & 7;
+      uint8_t rm  = modrm & 7;
+      if ((modrm >> 6) == 3) {
+        // reg to reg
+        *reg8_low[rm] = *reg8_low[reg];
+      } else {
+        // reg to mem
+        uint16_t addr = txbe_emu_calc_rm16(rm);
+        ram[addr] = *reg8_low[reg];
+      }
+      cpu.ip += 2;
+      break;
+    }
+
+    // MOV r/m16, r16
+    case 0x89: {
+      uint8_t modrm = ram[physical_ip + 1];
+      uint8_t reg = (modrm >> 3) & 7;
+      uint8_t rm  = modrm & 7;
+      if ((modrm >> 6) == 3) {
+        // reg to reg
+        *reg16[rm] = *reg16[reg];
+      } else {
+        // reg to mem
+        uint16_t addr = txbe_emu_calc_rm16(rm);
+        ram[addr] = *reg16[reg] & 0xFF;
+        ram[addr+1] = (*reg16[reg] >> 8) & 0xFF;
+      }
+      cpu.ip += 2;
+      break;
+    }
+
+    // MOV r8, r/m8
+    case 0x8A: {
+      uint8_t modrm = ram[physical_ip + 1];
+      uint8_t reg = (modrm >> 3) & 7;
+      uint8_t rm  = modrm & 7;
+      if ((modrm >> 6) == 3) {
+        // reg to reg
+        *reg8_low[reg] = *reg8_low[rm];
+      } else {
+        // mem to reg
+        uint16_t addr = txbe_emu_calc_rm16(rm);
+        *reg8_low[reg] = ram[addr];
+      }
+      cpu.ip += 2;
+      break;
+    }
+
+    // MOV r16, r/m16
+    case 0x8B: {
+      uint8_t modrm = ram[physical_ip + 1];
+      uint8_t reg = (modrm >> 3) & 7;
+      uint8_t rm  = modrm & 7;
+      if ((modrm >> 6) == 3) {
+        // reg to reg
+        *reg16[reg] = *reg16[rm];
+      } else {
+        // mem to reg
+        uint16_t addr = txbe_emu_calc_rm16(rm);
+        *reg16[reg] = ram[addr] | (ram[addr+1] << 8);
+      }
+      cpu.ip += 2;
+      break;
+    }
+    /** =============== MOV ================== */
+
     /** =============== CMP ================== */
     // CMP r/m8, r8
     case 0x38: {
@@ -222,17 +314,7 @@ int txbe_emu_emulate_next(uint16_t physical_ip) {
     }
     /** =============== JMP ================== */
 
-    /** =============== INT ================== */
-    case 0xCD: { // INT imm8
-      uint8_t int_num = ram[physical_ip + 1];
-      txbe_emu_handle_interrupt(int_num);
-      cpu.ip += 2;
-      break;
-    }
-    /** =============== INT ================== */
-
     /** =============== INC ================== */
-
     // 8-bit
     case 0xFE: { // INC 8-bit
       uint8_t reg8 = ram[physical_ip + 1];
@@ -356,97 +438,14 @@ int txbe_emu_emulate_next(uint16_t physical_ip) {
     }
     /** =============== INC ================== */
 
-    /** =============== MOV ================== */
-    // MOV immediate 8-bit: B0..B7
-    case 0xB0: case 0xB1: case 0xB2: case 0xB3:
-    case 0xB4: case 0xB5: case 0xB6: case 0xB7: {
-      uint8_t imm8 = ram[physical_ip + 1];
-      if (opcode <= 0xB3)
-        *reg8_low[opcode - 0xB0] = imm8;
-      else
-        *reg8_high[opcode - 0xB4] = imm8;
+    /** =============== INT ================== */
+    case 0xCD: { // INT imm8
+      uint8_t int_num = ram[physical_ip + 1];
+      txbe_emu_handle_interrupt(int_num);
       cpu.ip += 2;
       break;
     }
-
-    // MOV immediate 16-bit: B8..BF
-    case 0xB8: case 0xB9: case 0xBA: case 0xBB:
-    case 0xBC: case 0xBD: case 0xBE: case 0xBF: {
-      uint16_t imm16 = ram[physical_ip + 1] | (ram[physical_ip + 2] << 8);
-      *reg16[opcode - 0xB8] = imm16;
-      cpu.ip += 3;
-      break;
-    }
-
-    // MOV r/m8, r8
-    case 0x88: {
-      uint8_t modrm = ram[physical_ip + 1];
-      uint8_t reg = (modrm >> 3) & 7;
-      uint8_t rm  = modrm & 7;
-      if ((modrm >> 6) == 3) {
-        // reg to reg
-        *reg8_low[rm] = *reg8_low[reg];
-      } else {
-        // reg to mem
-        uint16_t addr = txbe_emu_calc_rm16(rm);
-        ram[addr] = *reg8_low[reg];
-      }
-      cpu.ip += 2;
-      break;
-    }
-
-    // MOV r/m16, r16
-    case 0x89: {
-      uint8_t modrm = ram[physical_ip + 1];
-      uint8_t reg = (modrm >> 3) & 7;
-      uint8_t rm  = modrm & 7;
-      if ((modrm >> 6) == 3) {
-        // reg to reg
-        *reg16[rm] = *reg16[reg];
-      } else {
-        // reg to mem
-        uint16_t addr = txbe_emu_calc_rm16(rm);
-        ram[addr] = *reg16[reg] & 0xFF;
-        ram[addr+1] = (*reg16[reg] >> 8) & 0xFF;
-      }
-      cpu.ip += 2;
-      break;
-    }
-
-    // MOV r8, r/m8
-    case 0x8A: {
-      uint8_t modrm = ram[physical_ip + 1];
-      uint8_t reg = (modrm >> 3) & 7;
-      uint8_t rm  = modrm & 7;
-      if ((modrm >> 6) == 3) {
-        // reg to reg
-        *reg8_low[reg] = *reg8_low[rm];
-      } else {
-        // mem to reg
-        uint16_t addr = txbe_emu_calc_rm16(rm);
-        *reg8_low[reg] = ram[addr];
-      }
-      cpu.ip += 2;
-      break;
-    }
-
-    // MOV r16, r/m16
-    case 0x8B: {
-      uint8_t modrm = ram[physical_ip + 1];
-      uint8_t reg = (modrm >> 3) & 7;
-      uint8_t rm  = modrm & 7;
-      if ((modrm >> 6) == 3) {
-        // reg to reg
-        *reg16[reg] = *reg16[rm];
-      } else {
-        // mem to reg
-        uint16_t addr = txbe_emu_calc_rm16(rm);
-        *reg16[reg] = ram[addr] | (ram[addr+1] << 8);
-      }
-      cpu.ip += 2;
-      break;
-    }
-    /** =============== MOV ================== */
+    /** =============== INT ================== */
 
     default: {
       struct txbe_event e;
