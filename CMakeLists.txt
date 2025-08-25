@@ -13,11 +13,11 @@ set(CORE_SOURCES
     thread.c
 )
 
-add_library(txbe
+add_library(libtxbe
             STATIC
             ${CORE_SOURCES})
 
-target_include_directories(txbe
+target_include_directories(libtxbe
                            PUBLIC
                            ${CMAKE_CURRENT_SOURCE_DIR})
 
@@ -36,23 +36,23 @@ set(E_SOURCES
     main.c
     ${BACKEND_SOURCES})
 
-add_executable(txbe_e
+add_executable(txbe
                ${E_SOURCES})
 
-target_link_libraries(txbe_e
-                     txbe
+target_link_libraries(txbe
+                     libtxbe
                      txbe_backend_${BACKEND})
 
-install(TARGETS txbe
+install(TARGETS libtxbe
         ARCHIVE DESTINATION lib
         LIBRARY DESTINATION lib
         PUBLIC_HEADER DESTINATION include)
 
-install(TARGETS txbe_e
-        RUNTIME DESTINATION bin
-        RENAME txbe)
+install(TARGETS txbe
+        RUNTIME DESTINATION bin)
 
 install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
         DESTINATION include/txbe
         FILES_MATCHING PATTERN "*.h"
+        PATTERN "build" EXCLUDE
         PATTERN ".*" EXCLUDE)

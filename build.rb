@@ -89,7 +89,7 @@ if option_build
   end
 end
 
-exec = "build/txbe_e"
+exec = "build/txbe"
 
 if option_termux
   home = ENV["HOME"]
