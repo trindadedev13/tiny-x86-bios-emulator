@@ -10,7 +10,7 @@ Main:
         PrintLoop:
                   int        0x10     ; draw
 
-                  inc        si       ; si++ ; isso ta vitando 0x46 0x8a no binario
+                  inc        si       ; si++
                   mov        al, [si] ; al = *si
 
                   cmp        al, 0x00 ; al == 0x00(null)
