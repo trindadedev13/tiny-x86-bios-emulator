@@ -10,11 +10,13 @@ set(CORE_SOURCES
     emu.c
     event.c
     int10.c
-    thread.c)
+    thread.c
+)
 
 add_library(txbe
             STATIC
             ${CORE_SOURCES})
+
 target_include_directories(txbe
                            PUBLIC
                            ${CMAKE_CURRENT_SOURCE_DIR})
@@ -22,11 +24,9 @@ target_include_directories(txbe
 set(BACKEND "stdout" CACHE STRING "Backend: stdout")
 set_property(CACHE BACKEND PROPERTY STRINGS stdout sdl)
 
-# Backend stdout
 add_txbe_backend(stdout
                  "backend_stdout.c"
                  "" "")
-
 
 get_target_property(BACKEND_SOURCES
                     txbe_backend_${BACKEND}
@@ -42,3 +42,17 @@ add_executable(txbe_e
 target_link_libraries(txbe_e
                      txbe
                      txbe_backend_${BACKEND})
+
+install(TARGETS txbe
+        ARCHIVE DESTINATION lib
+        LIBRARY DESTINATION lib
+        PUBLIC_HEADER DESTINATION include)
+
+install(TARGETS txbe_e
+        RUNTIME DESTINATION bin
+        RENAME txbe)
+
+install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
+        DESTINATION include/txbe
+        FILES_MATCHING PATTERN "*.h"
+        PATTERN ".*" EXCLUDE)

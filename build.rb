@@ -8,12 +8,14 @@ end
 def help()
   puts "txbe buildscript"
   puts
-  puts "--build  or -b:    Compiles the executable."
-  puts "--termux or -t:    Compiles the executable fixing termux problems."
-  puts "--gdb    or -g:    Compiles a debug bin, if run arg passed, so run with gdb."
-  puts "--run    or -r:    Runs the executable."
-  puts "--terx11 or -tx11: Runs the executable opening a x11 server at termux-x11 (requires run arg)."
-  puts "--help   or -h:    Shows help."
+  puts "--build   or -b:    Compiles the executable."
+  puts "--android-libso or -also: Compiles the lib.so for android. Requires NDK"
+  puts "--termux  or -t:    Compiles the executable fixing termux problems."
+  puts "--gdb     or -g:    Compiles a debug bin, if run arg passed, so run with gdb."
+  puts "--run     or -r:    Runs the executable."
+  puts "--terx11  or -tx11: Runs the executable opening a x11 server at termux-x11 (requires run arg)."
+  puts "--install or -i: Runs the executable opening a x11 server at termux-x11 (requires run arg)."
+  puts "--help    or -h:    Shows help."
 end
 
 def cleanup(pid)
@@ -23,6 +25,7 @@ def cleanup(pid)
 end
 
 option_build = false
+option_build_alibso = false
 
 option_termux = false
 option_tx11= false
@@ -30,18 +33,24 @@ option_tx11= false
 option_run = false
 option_gdb = false
 
+option_install = false
+
 ARGV.each do |arg|
   case arg
   when "--build", "-b"
     option_build = true
+  when "--android-libso", "-also"
+    option_build_alibso = true
   when "--termux", "-t"
     option_termux = true
   when "--terx11", "-tx11"
     option_tx11 = true
   when "--run", "-r"
     option_run = true
-  when "--gdn", "-g"
+  when "--gdb", "-g"
     option_gdb = true
+  when "--install", "-i"
+    option_install = true
   when "--help", "-h"
     help
     exit 1
@@ -53,13 +62,31 @@ ARGV.each do |arg|
 end
 
 if option_build
-  FileUtils.mkdir_p("build")
-  run("nasm -f bin SimpleBootloader.asm -o build/SimpleBootloader.img")
-  run(
-    "cmake -B build -S . -DBACKEND=stdout " \
-    "#{option_gdb ? "-DCMAKE_BUILD_TYPE=Debug" : ""}"
-  )
-  run("cmake --build build")
+  if option_build_alibso
+    abis = ["armeabi-v7a", "arm64-v8a", "x86", "x86_64"]
+    abis.each do |abi|
+      build_dir = "build/#{abi}"
+      ANDROID_NDK = ENV["ANDROID_NDK"]
+      run(
+        "cmake -B #{build_dir} -S . " \
+        "-DCMAKE_TOOLCHAIN_FILE=#{ANDROID_NDK}/build/cmake/android.toolchain.cmake " \
+        "-DCMAKE_INSTALL_PREFIX=#{ENV['PREFIX']} " \
+        "-DANDROID_ABI=#{abi} " \
+        "-DANDROID_PLATFORM=android-21 " \
+        "-DCMAKE_BUILD_TYPE=#{option_gdb ? "Debug" : "Release"}"
+      )
+      run("cmake --build #{build_dir}")
+    end
+  else
+    FileUtils.mkdir_p("build")
+    run("nasm -f bin SimpleBootloader.asm -o build/SimpleBootloader.img")
+    run(
+      "cmake -B build -S . -DBACKEND=stdout " \
+      "-DCMAKE_INSTALL_PREFIX=#{ENV['PREFIX']} " \
+      "-DCMAKE_BUILD_TYPE=#{option_gdb ? "Debug" : "Release"}"
+    )
+    run("cmake --build build")
+  end
 end
 
 exec = "build/txbe_e"
@@ -70,6 +97,10 @@ if option_termux
   FileUtils.mkdir_p(final_exec_path)
   FileUtils.cp_r("#{exec}", "#{final_exec_path}/main")
   run("chmod +x #{final_exec_path}/main")
+end
+
+if option_install
+  run("cmake --install build")
 end
 
 exit(0) if not option_run
