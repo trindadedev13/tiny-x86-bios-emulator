@@ -105,3 +105,6 @@ There's two way to compile it:
   ./build/txbe_e build/SimpleBootloader.img
   ```  
   If everything goes well, so you'll see 'boot' in stdout.
+
+## Community
+[![Join our Discord server!](https://invidget.switchblade.xyz/5hSStgYfru)](https://discord.gg/5hSStgYfru)
