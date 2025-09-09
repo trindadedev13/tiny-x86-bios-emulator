@@ -41,7 +41,7 @@
   The tbxe project is separated into 2 main parts, Core and Backend.  
 ## Core:
   Core is what loads the bootloader, interprets the x86 bytecodes  
-  Core produces events for each instruction type, you can see: [event.h](https://github.com/trindadedev13/txbe/tree/main/event.hL6)  
+  Core produces events for each instruction type, you can see: [event.h](https://github.com/trindadedev13/tiny-x86-bios-emulator/tree/main/event.h#L10)  
 
 ## Backend:
   Backend consumes the events that were pushed by the Core  
@@ -49,7 +49,7 @@
 
 ## About Backends
   Currently we have just one (1) backend, the stdout backend for Terminal Directly Output.  
-  You can implement your own backend with [backend-template](https://github.com/trindadedev13/txbe/tree/main/backend_template.c)  
+  You can implement your own backend with [backend-template](https://github.com/trindadedev13/tiny-x86-bios-emulator/tree/main/backend_template.c)  
   And add it in CMakeLists.txt  
 
 # Available Backends
