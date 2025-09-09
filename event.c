@@ -1,7 +1,5 @@
 #include "event.h"
 
-#include <stdio.h>
-
 static struct txbe_event queue[EVENT_QUEUE_SIZE] = {};
 static int queue_start = 0;
 static int queue_end = 0;
