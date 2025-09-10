@@ -9,12 +9,13 @@ def help()
   puts "txbe buildscript"
   puts
   puts "--build   or -b:    Compiles the executable."
-  puts "--android-libso or -also: Compiles the lib.so for android. Requires NDK"
+  puts "--android-libso or -also: Compiles the lib.so for android. Requires NDK."
   puts "--termux  or -t:    Compiles the executable fixing termux problems."
   puts "--gdb     or -g:    Compiles a debug bin, if run arg passed, so run with gdb."
   puts "--run     or -r:    Runs the executable."
   puts "--terx11  or -tx11: Runs the executable opening a x11 server at termux-x11 (requires run arg)."
-  puts "--install or -i: Runs the executable opening a x11 server at termux-x11 (requires run arg)."
+  puts "--install or -i:    Runs the executable opening a x11 server at termux-x11 (requires run arg)."
+  puts "--format  or -fmt:  Formats the code."
   puts "--help    or -h:    Shows help."
 end
 
@@ -34,6 +35,7 @@ option_run = false
 option_gdb = false
 
 option_install = false
+option_fmt = false
 
 ARGV.each do |arg|
   case arg
@@ -51,6 +53,8 @@ ARGV.each do |arg|
     option_gdb = true
   when "--install", "-i"
     option_install = true
+  when "--format", "-fmt"
+    option_fmt = true
   when "--help", "-h"
     help
     exit 1
@@ -61,12 +65,24 @@ ARGV.each do |arg|
   end
 end
 
+if option_fmt
+  extensions = ["c", "h"]
+  base_dir = "."
+
+  extensions.each do |ext|
+    Dir.glob(File.join(base_dir, "**", "*.#{ext}")).each do |file|
+      next if file.split(File::SEPARATOR).include?("build")
+      run("clang-format -i \"#{file}\"")
+    end
+  end
+end
+
 if option_build
   if option_build_alibso
     abis = ["armeabi-v7a", "arm64-v8a", "x86", "x86_64"]
     abis.each do |abi|
       build_dir = "build/#{abi}"
-      ANDROID_NDK = ENV["ANDROID_NDK"]
+      ANDROID_NDK = ENV["ANDROID_NDK"] || ENV["ANDROID_NDK_HOME"]
       run(
         "cmake -B #{build_dir} -S . " \
         "-DCMAKE_TOOLCHAIN_FILE=#{ANDROID_NDK}/build/cmake/android.toolchain.cmake " \
