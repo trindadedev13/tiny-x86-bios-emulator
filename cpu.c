@@ -6,7 +6,9 @@ struct txbe_cpu cpu = {};
 uint8_t ram[EBIOS_RAM_SIZE] = {};
 
 // SUB/CMP 16-bit
-void txbe_cpu_set_flags_sub16(uint16_t op1, uint16_t op2, uint32_t res) {
+void
+txbe_cpu_set_flags_sub16 (uint16_t op1, uint16_t op2, uint32_t res)
+{
   cpu.flags &= ~(FLAG_CF | FLAG_PF | FLAG_AF | FLAG_ZF | FLAG_SF | FLAG_OF);
 
   // handle flags
@@ -40,7 +42,9 @@ void txbe_cpu_set_flags_sub16(uint16_t op1, uint16_t op2, uint32_t res) {
 }
 
 // SUB/CMP 8-bit
-void txbe_cpu_set_flags_sub8(uint8_t op1, uint8_t op2, uint16_t res) {
+void
+txbe_cpu_set_flags_sub8 (uint8_t op1, uint8_t op2, uint16_t res)
+{
   cpu.flags &= ~(FLAG_CF | FLAG_PF | FLAG_AF | FLAG_ZF | FLAG_SF | FLAG_OF);
 
   // handle flags
@@ -73,22 +77,36 @@ void txbe_cpu_set_flags_sub8(uint8_t op1, uint8_t op2, uint16_t res) {
     cpu.flags |= FLAG_PF;
 }
 
-void txbe_cpu_set_flags_inc8(uint8_t old, uint8_t result) {
+void
+txbe_cpu_set_flags_inc8 (uint8_t old, uint8_t result)
+{
   cpu.flags &= ~(FLAG_SF | FLAG_ZF | FLAG_PF | FLAG_AF | FLAG_OF);
 
-  if (result == 0) cpu.flags |= FLAG_ZF;
-  if (result & 0x80) cpu.flags |= FLAG_SF;
-  if (__builtin_parity(result) == 0) cpu.flags |= FLAG_PF; // paridade par
-  if ((old & 0x0F) + 1 > 0x0F) cpu.flags |= FLAG_AF; // carry do nibble inferior
-  if (old == 0x7F) cpu.flags |= FLAG_OF; // overflow
+  if (result == 0)
+    cpu.flags |= FLAG_ZF;
+  if (result & 0x80)
+    cpu.flags |= FLAG_SF;
+  if (__builtin_parity (result) == 0)
+    cpu.flags |= FLAG_PF; // paridade par
+  if ((old & 0x0F) + 1 > 0x0F)
+    cpu.flags |= FLAG_AF; // carry do nibble inferior
+  if (old == 0x7F)
+    cpu.flags |= FLAG_OF; // overflow
 }
 
-void txbe_cpu_set_flags_inc16(uint16_t old, uint16_t result) {
+void
+txbe_cpu_set_flags_inc16 (uint16_t old, uint16_t result)
+{
   cpu.flags &= ~(FLAG_SF | FLAG_ZF | FLAG_PF | FLAG_AF | FLAG_OF);
 
-  if (result == 0) cpu.flags |= FLAG_ZF;
-  if (result & 0x8000) cpu.flags |= FLAG_SF;
-  if (__builtin_parity(result & 0xFF) == 0) cpu.flags |= FLAG_PF; // paridade do byte inferior
-  if ((old & 0x0F) + 1 > 0x0F) cpu.flags |= FLAG_AF;
-  if (old == 0x7FFF) cpu.flags |= FLAG_OF;
+  if (result == 0)
+    cpu.flags |= FLAG_ZF;
+  if (result & 0x8000)
+    cpu.flags |= FLAG_SF;
+  if (__builtin_parity (result & 0xFF) == 0)
+    cpu.flags |= FLAG_PF; // paridade do byte inferior
+  if ((old & 0x0F) + 1 > 0x0F)
+    cpu.flags |= FLAG_AF;
+  if (old == 0x7FFF)
+    cpu.flags |= FLAG_OF;
 }

@@ -13,6 +13,6 @@
 /** BOOTLOADER_SIZE - sign 2-bytes */
 #define BOOTLOADER_EXEC_SIZE 510
 
-int txbe_boot_load_bootloader(const char*);
+int txbe_boot_load_bootloader (const char *);
 
 #endif

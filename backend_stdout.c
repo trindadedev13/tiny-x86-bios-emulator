@@ -8,26 +8,31 @@
 
 #include "cpu.h"
 
-static inline int sys_clear() {
+static inline int
+sys_clear ()
+{
 #ifdef _WIN32
-  return system("cls");
+  return system ("cls");
 #else
-  return system("clear");
+  return system ("clear");
 #endif
 }
 
-void txbe_backend_stdout_event_process(struct txbe_event* e) {
-  switch (e->type) {
+void
+txbe_backend_stdout_event_process (struct txbe_event *e)
+{
+  switch (e->type)
+    {
     case EVENT_START:
-      sys_clear();
+      sys_clear ();
       break;
     case EVENT_END:
-      sys_clear();
+      sys_clear ();
       break;
     case EVENT_UNKNOWN_OPCODE:
-      fprintf(stderr, "Unknown opcode 0x%02X at CS:IP = %04X:%04X\n",
-             e->unknown_opcode.opcode, cpu.cs, cpu.ip);
-      fflush(stderr);
+      fprintf (stderr, "Unknown opcode 0x%02X at CS:IP = %04X:%04X\n",
+               e->unknown_opcode.opcode, cpu.cs, cpu.ip);
+      fflush (stderr);
       break;
     case EVENT_SET_VIDEOMODE:
     case EVENT_SET_TEXTMODE_CURSOR:
@@ -46,29 +51,33 @@ void txbe_backend_stdout_event_process(struct txbe_event* e) {
       break;
 
     case EVENT_WRITE_CHARACTER:
-      for (uint16_t i = 0; i < e->write_character.count; i++) {
-        putchar(e->write_character.character);
-      }
-      fflush(stdout);
+      for (uint16_t i = 0; i < e->write_character.count; i++)
+        {
+          putchar (e->write_character.character);
+        }
+      fflush (stdout);
       break;
 
     case EVENT_WRITE_CHARACTER_ONLY:
-      for (uint16_t i = 0; i < e->write_character_only.count; i++) {
-        putchar(e->write_character_only.character);
-      }
-      fflush(stdout);
+      for (uint16_t i = 0; i < e->write_character_only.count; i++)
+        {
+          putchar (e->write_character_only.character);
+        }
+      fflush (stdout);
       break;
 
     case EVENT_TELETYPE_OUTPUT:
-      putchar(e->teletype_output.character);
-      fflush(stdout);
+      putchar (e->teletype_output.character);
+      fflush (stdout);
       break;
-  }
+    }
 }
 
-EVENT_QUEUE_PROCESS_FUNC() {
+EVENT_QUEUE_PROCESS_FUNC ()
+{
   struct txbe_event e;
-  while (txbe_event_pool(&e) == 0) {
-    txbe_backend_stdout_event_process(&e);
-  }
+  while (txbe_event_pool (&e) == 0)
+    {
+      txbe_backend_stdout_event_process (&e);
+    }
 }
