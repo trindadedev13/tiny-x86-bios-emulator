@@ -11,11 +11,7 @@
 static inline int
 sys_clear ()
 {
-#ifdef _WIN32
-  return system ("cls");
-#else
   return system ("clear");
-#endif
 }
 
 void
