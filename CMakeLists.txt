@@ -10,8 +10,7 @@ set(CORE_SOURCES
     cpu.c
     emu.c
     event.c
-    int10.c
-    thread.c)
+    int10.c)
 
 add_library(libtxbe
             STATIC

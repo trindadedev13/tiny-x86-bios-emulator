@@ -1,8 +1,8 @@
 #ifndef __txbe_emu_h__
 #define __txbe_emu_h__
 
-#include "thread.h"
 #include <stdint.h>
+#include <pthread.h>
 
 enum txbe_emu_state
 {
@@ -17,7 +17,7 @@ void txbe_emu_start ();
 void txbe_emu_pause ();
 void txbe_emu_resume ();
 void txbe_emu_stop ();
-THREAD txbe_emu_thread (void *);
+void* txbe_emu_thread (void *);
 void txbe_emu_emulate ();
 
 void txbe_emu_handle_interrupt (uint8_t);

@@ -1,15 +1,15 @@
 #include "emu.h"
 
 #include <stdint.h>
-#include <stdlib.h>
+#include <pthread.h>
+#include <unistd.h>
 
 #include "cpu.h"
 #include "event.h"
 #include "int10.h"
-#include "thread.h"
 #include "x86_16b.h"
 
-static txbe_thread emu_thread_id;
+static pthread_t emu_thread_id;
 static enum txbe_emu_state emu_state = EMU_STOPPED;
 
 void
@@ -32,7 +32,7 @@ void
 txbe_emu_start ()
 {
   emu_state = EMU_RUNNING;
-  txbe_thread_create (&emu_thread_id, txbe_emu_thread, NULL);
+  pthread_create (&emu_thread_id, NULL, txbe_emu_thread, NULL);
 }
 
 void
@@ -51,10 +51,10 @@ void
 txbe_emu_stop ()
 {
   emu_state = EMU_STOPPED;
-  txbe_thread_join (emu_thread_id);
+  pthread_join (emu_thread_id, 0);
 }
 
-THREAD
+void*
 txbe_emu_thread (void *_udata)
 {
   txbe_emu_backend_start ();
@@ -67,11 +67,11 @@ txbe_emu_thread (void *_udata)
         }
       else
         {
-          txbe_thread_sleep (1);
+          usleep (1000);
         }
     }
   txbe_emu_backend_end ();
-  return THREAD_RET_NULL;
+  return NULL;
 }
 
 void
